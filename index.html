@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Ingenieur Labs</title>
+    <meta
+      name="description"
+      content="Ingenieur Labs is a venture studio of two. We build software we want to exist, and turn the parts that work into companies."
+    />
+    <meta name="theme-color" content="#000000" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Ingenieur Labs" />
+    <meta
+      property="og:description"
+      content="A venture studio of two. We build software we want to exist, and turn the parts that work into companies."
+    />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&display=swap"
+    />
+    <script>
+      // Hide the intro elements until the lights come on, but never for longer than 3s.
+      document.documentElement.classList.add('js');
+      setTimeout(() => document.documentElement.classList.add('is-lit'), 3000);
+    </script>
+  </head>
+  <body>
+    <canvas class="lacquer" aria-hidden="true"></canvas>
+    <a class="skip-link" href="#main">Skip to content</a>
+
+    <header class="site-header">
+      <a class="brand" href="#top">Ingenieur Labs</a>
+      <nav aria-label="Primary">
+        <ul class="site-nav">
+          <li><a href="#approach">Approach</a></li>
+          <li><a href="#about">About</a></li>
+          <li><a href="#contact">Contact</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <main id="main">
+      <section class="hero" id="top" data-exposure="1">
+        <p class="hero__lede">
+          A venture studio of two. We build software we want to exist, and turn the parts that work
+          into companies.
+        </p>
+        <h1 class="wordmark">
+          <span class="wordmark__name">Ingenieur</span>
+          <span class="wordmark__suffix">Labs</span>
+        </h1>
+      </section>
+
+      <section class="thesis" data-exposure="0.3" aria-labelledby="thesis-title">
+        <h2 class="thesis__title" id="thesis-title">
+          <span class="thesis__line">Some ideas arrive</span>
+          <span class="thesis__line">with one dimension</span>
+          <span class="thesis__line">too many.</span>
+        </h2>
+        <div class="thesis__body">
+          <p>
+            They're too big to hold, too vague to start, or a little ahead of their time. We take
+            them apart, find the piece that works today, and build it until it's something people
+            can actually use.
+          </p>
+          <p>Every project here starts as a hunch and ends as working software.</p>
+        </div>
+      </section>
+
+      <section class="process" id="approach" data-exposure="0.12" aria-labelledby="process-title">
+        <h2 class="section-title" id="process-title">From a hunch to a company.</h2>
+        <ol class="stages">
+          <li class="stage">
+            <div class="specimen specimen--haze" aria-hidden="true"></div>
+            <h3 class="stage__name">Notice</h3>
+            <p class="stage__text">
+              It starts with a problem one of us keeps running into. If we wouldn't use the fix
+              ourselves, we don't build it.
+            </p>
+          </li>
+          <li class="stage">
+            <div class="specimen specimen--outline" aria-hidden="true"></div>
+            <h3 class="stage__name">Prototype</h3>
+            <p class="stage__text">
+              A working version in weeks, not a pitch deck. Rough is fine. Real is required.
+            </p>
+          </li>
+          <li class="stage">
+            <div class="specimen specimen--solid" aria-hidden="true"></div>
+            <h3 class="stage__name">Ship</h3>
+            <p class="stage__text">
+              We put it in front of people who have the same problem and watch what they actually do
+              with it.
+            </p>
+          </li>
+          <li class="stage">
+            <div class="specimen specimen--polished" aria-hidden="true"></div>
+            <h3 class="stage__name">Spin out</h3>
+            <p class="stage__text">
+              When it has users and momentum, it becomes a company of its own.
+            </p>
+          </li>
+        </ol>
+        <p class="process__note">
+          Most ideas stop after the first or second step. We keep what we learned and start the
+          next one sooner.
+        </p>
+      </section>
+
+      <section class="about" id="about" data-exposure="0.2" aria-labelledby="about-title">
+        <h2 class="section-title" id="about-title">Small on purpose.</h2>
+        <div class="about__body">
+          <p>
+            Ingenieur Labs is two friends who would rather build than talk about building. We choose
+            the problems, write the code, ship it, and decide together which projects deserve to
+            become companies.
+          </p>
+          <p>
+            <i lang="de">Ingenieur</i> is German for engineer. The word traces back to the Latin
+            <i lang="la">ingenium</i>, which also gave us ingenious. That's the bar.
+          </p>
+        </div>
+      </section>
+
+      <section class="contact" id="contact" data-exposure="0.85" aria-labelledby="contact-title">
+        <h2 class="contact__title" id="contact-title">Have an idea that feels out of reach?</h2>
+        <p class="contact__text">Tell us about it, or just say hello.</p>
+        <div class="contact__actions">
+          <a class="button button--solid" href="mailto:hello@ingenieurlabs.com">Email us</a>
+          <a class="button button--ghost" href="https://github.com/KC-Ventures">GitHub</a>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <p>© 2026 Ingenieur Labs</p>
+    </footer>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
