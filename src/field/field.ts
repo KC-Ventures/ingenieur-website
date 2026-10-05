@@ -153,7 +153,8 @@ export function createField(canvas: HTMLCanvasElement, options: FieldOptions = {
       gl.uniform2f(u.uSwing, swing[0], swing[1]);
       gl.uniform1f(u.uScale, (scale ?? options.scale ?? 520) * ratio);
       gl.uniform1f(u.uTime, time);
-      gl.uniform1f(u.uCell, Math.max(1, cell * ratio));
+      // A cell of one CSS pixel means smooth, on any screen; only real dither cells scale with the ratio.
+      gl.uniform1f(u.uCell, cell <= 1 ? 1 : cell * ratio);
       gl.uniform1f(u.uSteps, steps);
       gl.uniform1f(u.uMono, mono);
       gl.clearColor(0, 0, 0, 0);
