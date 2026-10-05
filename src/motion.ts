@@ -27,6 +27,9 @@ const STEP_LENGTH = 0.15; // four steps fill the first 60%
 const OPEN_FROM = 0.64;
 const OPEN_TO = 0.82;
 const CTA_AT = 0.8;
+// The drum the steps sit on.
+const DRUM_ANGLE = 16; // degrees between steps
+const LEAN = 0.1; // how far it turns before it clicks over, as a share of one step
 
 // The statement holds for this many screens of scrolling...
 const HOLD = 1.1;
@@ -160,37 +163,70 @@ export function initMotion({ scene, journey, onChange }: MotionOptions) {
       }
     : gsap.quickTo(scene, 'open', { duration: 0.6, ease: 'power3.out', onUpdate: applyOpen });
 
+  // The steps sit on a drum that turns like a click wheel: scrolling within a step turns it only
+  // a little, against the click, and at the next step it clicks over all at once. Each step fades
+  // as it rolls away, so at rest only the current one shows.
+  const drum = { position: 0, pitch: 0 };
+  const turnDrum = () => {
+    const angle = (DRUM_ANGLE * Math.PI) / 180;
+    const radius = drum.pitch / angle;
+    journey.steps.forEach((step, i) => {
+      const offset = i - drum.position;
+      const a = offset * angle;
+      step.style.transform = `translate3d(0, ${radius * Math.sin(a)}px, ${radius * (Math.cos(a) - 1)}px) rotateX(${-a}rad)`;
+      // Full strength until it has turned a little, so leaning on the click doesn't dim it.
+      step.style.opacity = String(gsap.utils.clamp(0, 1, (1 - Math.abs(offset)) * 1.25));
+    });
+  };
+  // One step's height apart on the drum, so neighbours never overlap.
+  const measureDrum = () => {
+    drum.pitch = Math.max(...journey.steps.map((step) => step.offsetHeight)) + 32;
+    turnDrum();
+  };
+
+  let clicking = false;
+  let wanted = 0;
+  const turnTo = (position: number, click: boolean) => {
+    wanted = position;
+    if (reduced) {
+      drum.position = Math.round(position);
+      turnDrum();
+    } else if (click) {
+      clicking = true;
+      gsap.to(drum, {
+        position,
+        // Quick, and straight into place.
+        duration: 0.55,
+        ease: 'power3.out',
+        overwrite: true,
+        onUpdate: turnDrum,
+        onComplete: () => {
+          clicking = false;
+          turnTo(wanted, false);
+        },
+      });
+    } else if (!clicking) {
+      gsap.to(drum, { position, duration: 0.3, ease: 'power2.out', overwrite: true, onUpdate: turnDrum });
+    }
+  };
+
   let current = -1;
   const showStep = (index: number) => {
-    if (index === current) return;
+    if (index === current) return false;
     current = index;
-    const step = journey.showStep(index);
+    journey.showStep(index);
     // The readout's new text can move the window; keep the clip on it.
     journey.measure();
     applyOpen();
-    journey.steps.forEach((item, i) => {
-      item.classList.toggle('is-prev', i === index - 1);
-      item.classList.toggle('is-next', i === index + 1);
-      item.style.opacity = i === index ? '1' : i === index - 1 || i === index + 1 ? '0.28' : '0';
-    });
     if (reduced) {
       scene.journey = index;
       onChange();
-      return;
+      return true;
     }
     // Resolution climbs in visible steps, like an image loading.
     // 'auto' only replaces the previous journey tween; the hero's intro shares this object.
     gsap.to(scene, { journey: index, duration: 0.9, ease: 'steps(6)', overwrite: 'auto', onUpdate: onChange });
-    gsap.fromTo(
-      step.querySelector('.step__name span'),
-      { yPercent: 105 },
-      { yPercent: 0, duration: 0.9, ease: 'expo.out', overwrite: true },
-    );
-    gsap.fromTo(
-      [step.querySelector('.step__index'), step.querySelector('.step__text')],
-      { opacity: 0, y: 10 },
-      { opacity: 1, y: 0, duration: 0.7, ease: 'power2.out', stagger: 0.05, overwrite: true },
-    );
+    return true;
   };
 
   let ctaShown = false;
@@ -207,6 +243,7 @@ export function initMotion({ scene, journey, onChange }: MotionOptions) {
 
   cta.inert = true;
   showStep(0);
+  measureDrum();
   applyOpen();
 
   const trigger = ScrollTrigger.create({
@@ -215,11 +252,15 @@ export function initMotion({ scene, journey, onChange }: MotionOptions) {
     end: 'bottom bottom',
     onRefresh: () => {
       journey.measure();
+      measureDrum();
       applyOpen();
     },
     onUpdate: (self) => {
       const p = self.progress;
-      showStep(Math.min(3, Math.floor(p / STEP_LENGTH)));
+      const steps = p / STEP_LENGTH;
+      const index = Math.min(3, Math.floor(steps));
+      // Leans toward the next step as it gets closer; the last step has nowhere to go.
+      turnTo(index + (index < 3 ? (steps - index) * LEAN : 0), showStep(index));
       const open = reduced ? Number(p >= (OPEN_FROM + OPEN_TO) / 2) : gsap.utils.clamp(0, 1, (p - OPEN_FROM) / (OPEN_TO - OPEN_FROM));
       openTo(open);
       showCta(p >= CTA_AT);

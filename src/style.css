@@ -590,51 +590,24 @@ a {
   align-content: center;
   overflow: clip;
   transform: translateY(-50%);
+  perspective: 1400px;
+  /* Steps rolling away fade out at the edges instead of being cut off. */
+  -webkit-mask-image: linear-gradient(transparent, #000 12%, #000 88%, transparent);
+  mask-image: linear-gradient(transparent, #000 12%, #000 88%, transparent);
 }
 
-/* Keep the current step legible while adjacent steps peek into the reading area.
-   The stack makes the scroll-driven state change visible before it happens. */
+/* The steps sit on a drum; the script turns it and fades each step as it rolls away. */
 .js .step {
   grid-area: 1 / 1;
   align-self: center;
   opacity: 0;
   pointer-events: none;
-  transform: translateY(5rem) scale(0.96);
-  transition:
-    opacity 500ms ease,
-    transform 700ms var(--ease-out);
+  will-change: transform, opacity;
 }
 
 .js .step.is-current {
-  z-index: 2;
-  opacity: 1;
-  transform: translateY(0) scale(1);
-}
-
-.js .step.is-prev,
-.js .step.is-next {
   z-index: 1;
-  opacity: 0.28;
-}
-
-.js .step.is-prev {
-  transform: translateY(calc(-100% - 2rem)) scale(0.92);
-}
-
-.js .step.is-next {
-  transform: translateY(calc(100% + 2rem)) scale(0.92);
-}
-
-.js .step.is-prev .step__name,
-.js .step.is-next .step__name {
-  font-size: clamp(2.25rem, 4.5vw, 4.5rem);
-  color: var(--muted);
-}
-
-/* Adjacent states are orientation, not competing paragraphs. */
-.js .step.is-prev .step__text,
-.js .step.is-next .step__text {
-  opacity: 0 !important;
+  opacity: 1;
 }
 
 /* The copy steps aside as the window opens into the page. */
@@ -782,9 +755,5 @@ a {
 @media (prefers-reduced-motion: reduce) {
   .journey__scroll-arrow {
     animation: none;
-  }
-
-  .js .step {
-    transition: none;
   }
 }

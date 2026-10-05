@@ -102,10 +102,13 @@ only: once the reader is past it and scrolling pauses (or turns back up), the
 pin is reverted and the scroll position compensated so nothing moves; it is
 re-armed out of sight once the paragraph is below the screen again. "Contact"
 releases it before jumping. The
-journey includes a visible "Scroll to develop" cue. Its active step stays
-legible while the previous and next step titles rotate in as smaller, dimmer
-orientation hints; adjacent descriptions stay hidden to protect the active
-copy. Reduced motion removes tweens while preserving the states.
+journey includes a visible "Scroll to develop" cue. Its steps sit on a drum
+that rolls vertically like a slot machine reel and turns like a click wheel:
+within a step it leans only `LEAN` of the way toward the next, then at the
+threshold it clicks over in one eased turn (no overshoot; the user wants it
+minimal). `DRUM_ANGLE` sets the curve (gentle, 16°). Steps fade as they roll
+away, so at rest only the current one shows, with no visible reel. Reduced
+motion removes tweens while preserving the states.
 
 `src/main.ts` loads fonts, creates the fields, turns the pointer into tilt
 (position across the viewport, eased) and swing (how far the tilt trails the
@@ -152,8 +155,8 @@ readout wraps (and is always stacked on phones) instead of widening it.
   without showing a car. Vercel is the inspiration, pushed further. Strong
   typography uses Geist / Geist Mono.
 - Scroll animations must carry meaning. The journey's resolution progression,
-  rotating step previews, and window opening are intentional state changes, not
-  generic section fades.
+  click-wheel step drum, and window opening are intentional state changes, not
+  generic section fades. Keep motion minimal: no bounce or overshoot.
 - Frame the company as a studio. Do not describe it as "two friends."
 - Contact: `ingenieur.labs@gmail.com`, GitHub organization `KC-Ventures`.
 - References they like: `distrategy.plastic.design`, `plastic.design`, and
@@ -181,13 +184,6 @@ Replaced with the silver CD field.
 
 ## Open items worth raising with the user
 
-- Bug, desktop journey: the previous/next step hints do not work as intended.
-  `.js .steps` clips (`overflow: clip`, `src/style.css`), and `.is-prev` /
-  `.is-next` move by their full height, including the hidden description. So
-  the previous step is never visible, and the next one shows as a sliced title
-  fragment ("Comp…") just under the active paragraph (shoot `"journey":0.35` at
-  1440×900). Fix so the neighbours show as clean, dim titles. At 820px wide the
-  previous hint does show.
 - No `og:image` social preview yet.
 - The journey is long (`620vh`); tune `.js .journey { height }` and the constants
   at the top of `src/motion.ts` if it drags.
