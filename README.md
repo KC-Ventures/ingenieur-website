@@ -28,5 +28,4 @@ Import the repo in Vercel. It detects Vite automatically: build command
 
 ## Things to fill in
 
-- Contact address: `mailto:hello@ingenieurlabs.com` in `index.html` is a placeholder.
 - Social preview image: add an `og:image` meta tag once there's artwork.
