@@ -15,8 +15,31 @@ direction and iterate in small, previewed steps; do not start over unless the
 user asks.
 
 The field, interaction, phone clip bug and high-density dither bug are done and
-live. What is left is polish: the user will bring new polish suggestions, and
-the known candidates are under "Open items" below.
+live. A polish pass followed, also live: the statement now holds in the middle
+of the screen while a light sweeps it, ending on a green "ship" (`13bd803`), and
+the journey steps turn like a click wheel on a drum (`74dce7f`). Smaller polish
+candidates are under "Open items" below.
+
+### Next task: a founders section
+
+The user wants a section introducing the founders. Nothing has been designed or
+built yet, and no content has been provided. Start by asking, in one short
+round:
+
+- Who: names, roles, a line or two about each, links (GitHub, LinkedIn, X), and
+  whether to show photos.
+- Where it goes. The page runs hero → statement → journey (which ends in the
+  contact panel) → footer, so the natural spots are between the statement and
+  the journey, or after the journey before the footer. Also ask whether it gets
+  a header nav link next to "Approach" and "Contact".
+- How big: a compact strip or a full section with its own moment.
+
+Already settled: frame the company as a studio, never "two friends"; black
+page, green accent, Geist type, flat type; motion minimal (no bounce) and only
+where it means something; no tesseract, disc or car imagery. A new `<section>`
+inside `<main class="frame">` gets the hairline border and crosshairs from
+`.frame > section + section` automatically. Then follow the usual loop: build
+2–3 variants on a temporary key switch, screenshot, and commit only when asked.
 
 ## Working with this user
 
@@ -41,9 +64,10 @@ npm run dev       # Vite on http://localhost:5173
 npm run build     # tsc type-check, then vite build to dist/
 ```
 
-Other worktrees often hold ports 5173 and 5179; start this one with
-`npx vite --port 5183 --strictPort` and pass `"url":"http://localhost:5183/"` to
-`scripts/shoot.mjs` (it defaults to 5179). Restart the dev server after editing
+Other worktrees often hold ports 5173, 5179 and 5183; check with
+`netstat -ano | grep LISTEN`, start this one on a free port (e.g.
+`npx vite --port 5187 --strictPort`), and pass `"url":"http://localhost:5187/"`
+to `scripts/shoot.mjs` (it defaults to 5179). Restart the dev server after editing
 `vite.config.ts` (it defines `__COMMIT__`).
 
 Shipping: work happens on a branch in a git worktree. To release, `git fetch`,
@@ -208,6 +232,10 @@ no-WebGL, and a `"dpr":2` shot (the user's screen is high-density; a 1× check
 missed a bug that only showed there).
 To check the tilt, shoot the same spot with the mouse in opposite corners; a
 shot with `"wait": 90` right after a long mouse move catches the swing flare.
+To see a fast GSAP tween frame by frame, slow the page's own GSAP from a
+Playwright script: find its URL with `performance.getEntriesByType('resource')`
+(the Vite dep `/deps/gsap.js?v=…`; another URL loads a second copy), `import()`
+it, and call `gsap.globalTimeline.timeScale(0.1)`.
 
 ## Gotchas already hit
 
@@ -224,5 +252,10 @@ shot with `"wait": 90` right after a long mouse move catches the swing flare.
   (`field.ts`), or high-density screens never leave the dither path.
 - Anything that changes the journey window's position needs the clip
   re-measured (`journey.measure()` then `applyOpen()` in `motion.ts`).
+- The statement's hold adds about a screen of scroll until it is released. A
+  script that jumps past it sees the page get shorter at the next scroll pause,
+  so recompute positions per shot (as `shoot.mjs` does) rather than reusing a
+  scroll number. A new section above the journey shifts these positions too;
+  the hold and the journey re-measure on `ScrollTrigger.refresh()`.
 - The user has declined shell file deletions before; ask first. A leftover
   diagnostic, `.shots/clipcheck.mjs`, is harmless (`.shots/` is gitignored).
