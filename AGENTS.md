@@ -254,7 +254,10 @@ Images land in `.shots/`. Options include width/height, touch, reduced,
 noWebgl, `dpr`, and per-shot `y`, `sel+offset`, `frac`, `journey` (0–1), `mouse`,
 `key`, and `click`. Check desktop 1440×900, phone 390×844, reduced motion,
 no-WebGL, and a `"dpr":2` shot (the user's screen is high-density; a 1× check
-missed a bug that only showed there).
+missed a bug that only showed there). Also check a short Chrome window,
+1280×557 at `"dpr":1.5` (a 1080p laptop at 150% with Chrome's bars): the user
+browses in Zen, which gives the page more height, and missed a bug that only
+showed there.
 To check the tilt, shoot the same spot with the mouse in opposite corners; a
 shot with `"wait": 90` right after a long mouse move catches the swing flare.
 To see a fast GSAP tween frame by frame, slow the page's own GSAP from a
@@ -275,6 +278,10 @@ it, and call `gsap.globalTimeline.timeScale(0.1)`.
 - `background-clip: text` only paints inside the box; pad for descenders.
 - A dither cell of 1 CSS px means smooth. Do not scale it by the pixel ratio
   (`field.ts`), or high-density screens never leave the dither path.
+- `.steps` is absolutely positioned but keeps `grid-area: steps`, so its `top`
+  and percentage heights resolve against that grid row, not the whole stage.
+  The row shrinks fast on short windows while the type is sized by width, which
+  is why the list has a content-based floor (see the drum in `DESIGN.md`).
 - Anything that changes the journey window's position needs the clip
   re-measured (`journey.measure()` then `applyOpen()` in `motion.ts`).
 - The statement's hold adds about a screen of scroll until it is released. A

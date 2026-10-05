@@ -589,21 +589,25 @@ a {
   background: none;
 }
 
+/* At least as tall as the tallest step plus the fade, so short windows (Chrome with its
+   bars, a scaled laptop screen) grow the box rather than fade the step at rest. */
 .js .steps {
+  --fade: 3rem;
   position: absolute;
   top: 50%;
   left: var(--pad);
   width: min(40rem, calc(50vw - 4rem));
-  height: min(66%, 32rem);
-  max-height: calc(100% - 4rem);
+  min-height: min(66%, 32rem);
+  padding-block: var(--fade);
   gap: 0;
   align-content: center;
   overflow: clip;
   transform: translateY(-50%);
   perspective: 1400px;
   /* Steps rolling away fade out at the edges instead of being cut off. */
-  -webkit-mask-image: linear-gradient(transparent, #000 12%, #000 88%, transparent);
-  mask-image: linear-gradient(transparent, #000 12%, #000 88%, transparent);
+  --edges: linear-gradient(transparent, #000 max(12%, var(--fade)), #000 min(88%, 100% - var(--fade)), transparent);
+  -webkit-mask-image: var(--edges);
+  mask-image: var(--edges);
 }
 
 /* The steps sit on a drum; the script turns it and fades each step as it rolls away. */
@@ -736,11 +740,11 @@ a {
   }
 
   .js .steps {
+    --fade: 0px;
     position: relative;
     inset: auto;
     width: auto;
     height: 100%;
-    max-height: none;
     transform: none;
   }
 

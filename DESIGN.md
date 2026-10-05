@@ -487,8 +487,11 @@ anything on screen, and it re-arms out of sight. "Contact" skips it.
 
 The drum: steps sit `DRUM_ANGLE = 16°` apart on a cylinder whose pitch is the
 tallest step plus 32px. A step fades as it rolls away and the list is masked at
-its top and bottom 12%, so at rest only the current step shows and no reel is
-visible.
+its top and bottom 12% (at least 3rem), so at rest only the current step shows
+and no reel is visible. The list is 66% of the space between the title and the
+progress bar, but never shorter than the tallest step plus the 3rem fade at each
+end: a short window (Chrome with its bars, a laptop at 150% scaling) grows the
+list instead of fading the step at rest.
 
 **Small things.** The header's hairline appears after 8px of scroll (200ms). The
 scroll cue's arrow bobs on a 1.8s loop; it is the only looping CSS animation.
