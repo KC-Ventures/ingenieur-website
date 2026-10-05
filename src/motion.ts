@@ -28,6 +28,14 @@ const OPEN_FROM = 0.64;
 const OPEN_TO = 0.82;
 const CTA_AT = 0.8;
 
+// The statement holds for this many screens of scrolling...
+const HOLD = 1.1;
+// ...while its reading light runs, in timeline units.
+const WORD = 0.6; // how long one word takes to light
+const WORD_GAP = 0.14; // from one word to the next
+const PHRASE_GAP = 0.5; // a beat between phrases
+const DIM = '#2e2e2e';
+
 export function initMotion({ scene, journey, onChange }: MotionOptions) {
   const root = document.documentElement;
   const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -52,17 +60,84 @@ export function initMotion({ scene, journey, onChange }: MotionOptions) {
       .from(lede.lines, { yPercent: 100, duration: 1.2, stagger: 0.08 }, 0.5)
       .from('.hero__actions .button', { y: 14, autoAlpha: 0, duration: 1, stagger: 0.07 }, 0.75)
       .from('.site-header', { autoAlpha: 0, duration: 1 }, 0.85);
+  }
 
-    // ---- Statement: one phrase at a time, as it reaches the reading line. ----
-    gsap.fromTo(
-      '.statement__phrase',
-      { color: '#2e2e2e' },
-      {
-        color: '#ffffff',
-        ease: 'none',
-        stagger: 0.5,
-        scrollTrigger: { trigger: '.statement__text', start: 'top 75%', end: 'bottom 40%', scrub: 0.4 },
+  // ---- Statement: the paragraph holds in the middle while a reading light sweeps its words. ----
+  // It holds on the way down only. Once it is behind the reader the hold comes out, so scrolling back
+  // up goes straight past; it goes back in, out of sight, once the paragraph is below the screen again.
+  const phrases = [...document.querySelectorAll<HTMLElement>('.statement__phrase')].map(splitWords);
+  // Lets "Contact" skip the hold instead of scrolling through it.
+  let releaseStatement = () => {};
+
+  if (!reduced) {
+    const text = document.querySelector<HTMLElement>('.statement__text')!;
+    const ship = text.querySelector('.statement__ship');
+    // The middle of what the sticky header leaves visible.
+    const readingLine = () => (window.innerHeight + document.querySelector<HTMLElement>('.site-header')!.offsetHeight) / 2;
+    let statement: gsap.Context | undefined;
+    let hold: ScrollTrigger;
+
+    const arm = () => {
+      statement = gsap.context(() => {
+        const tl = gsap.timeline({ defaults: { ease: 'none' } });
+        let at = 0;
+        phrases.forEach((words, p) => {
+          if (p > 0) at += PHRASE_GAP;
+          for (const word of words) {
+            tl.fromTo(word, { color: DIM }, { color: word === ship ? '#00ff88' : '#ffffff', duration: WORD }, at);
+            at += WORD_GAP;
+          }
+        });
+        // A moment fully lit before the paragraph moves on.
+        tl.to({}, { duration: 0.8 });
+        hold = ScrollTrigger.create({
+          animation: tl,
+          trigger: text,
+          start: () => `center ${readingLine()}px`,
+          end: () => `+=${window.innerHeight * HOLD}`,
+          pin: true,
+          anticipatePin: 1,
+          scrub: 0.5,
+          // Set again after the journey's trigger, but it has to be measured before it.
+          refreshPriority: 1,
+        });
+      });
+    };
+
+    releaseStatement = () => {
+      if (!statement) return;
+      const y = window.scrollY;
+      const passed = gsap.utils.clamp(0, hold.end - hold.start, y - hold.start);
+      // Reverting takes out the pin's spacing and the inline colours, which leaves the lit paragraph.
+      statement.revert();
+      statement = undefined;
+      // Everything below moved up by the part of the hold already scrolled through; follow it, so nothing on screen moves.
+      window.scrollTo({ top: y - passed, behavior: 'instant' });
+      ScrollTrigger.refresh();
+    };
+
+    // Not when the page opens below the paragraph.
+    const box = text.getBoundingClientRect();
+    if (box.top + box.height / 2 > readingLine()) arm();
+
+    // Changes wait until scrolling pauses, so they never interrupt it...
+    ScrollTrigger.addEventListener('scrollEnd', () => {
+      if (statement && window.scrollY >= hold.end) {
+        releaseStatement();
+      } else if (!statement && text.getBoundingClientRect().top > window.innerHeight) {
+        arm();
+        ScrollTrigger.refresh();
+      }
+    });
+    // ...except turning back up, when the hold has to be gone before the paragraph comes back.
+    let lastY = window.scrollY;
+    window.addEventListener(
+      'scroll',
+      () => {
+        if (statement && window.scrollY < lastY && lastY >= hold.end) releaseStatement();
+        lastY = window.scrollY;
       },
+      { passive: true },
     );
   }
 
@@ -155,8 +230,33 @@ export function initMotion({ scene, journey, onChange }: MotionOptions) {
   for (const link of document.querySelectorAll<HTMLAnchorElement>('a[href="#contact"]')) {
     link.addEventListener('click', (event) => {
       event.preventDefault();
+      releaseStatement();
       const top = trigger.start + (trigger.end - trigger.start) * 0.92;
       window.scrollTo({ top, behavior: reduced ? 'auto' : 'smooth' });
     });
   }
+}
+
+/** Wraps each word of a phrase in a span; child elements count as one word. Words stay inline, so lines break as before. */
+function splitWords(phrase: HTMLElement): HTMLElement[] {
+  const words: HTMLElement[] = [];
+  for (const node of [...phrase.childNodes]) {
+    if (node instanceof HTMLElement) {
+      words.push(node);
+      continue;
+    }
+    const fragment = document.createDocumentFragment();
+    for (const part of (node.textContent ?? '').split(/(\s+)/)) {
+      if (!part.trim()) {
+        fragment.append(part);
+        continue;
+      }
+      const word = document.createElement('span');
+      word.textContent = part;
+      fragment.append(word);
+      words.push(word);
+    }
+    node.replaceWith(fragment);
+  }
+  return words;
 }

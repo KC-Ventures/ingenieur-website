@@ -333,6 +333,10 @@ a {
   color: var(--white);
 }
 
+.statement__ship {
+  color: var(--green);
+}
+
 /* ---------- Journey: idea to company, one resolution at a time ---------- */
 
 .journey {

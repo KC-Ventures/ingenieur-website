@@ -94,8 +94,14 @@ field is clipped to the square window; `showStep` swaps the copy, progress bar,
 and resolution readout. `motion.ts` re-measures the clip on every step change,
 because the readout's text can move the window.
 
-`src/motion.ts` owns the GSAP behavior: hero dither resolve, statement phrase
-reveal, journey ScrollTrigger, window opening, and contact panel reveal. The
+`src/motion.ts` owns the GSAP behavior: hero dither resolve, statement hold,
+journey ScrollTrigger, window opening, and contact panel reveal. The statement
+pins in the middle of the screen (`HOLD` screens of scroll) while a light
+sweeps it word by word, ending on a green "ship". It holds on the way down
+only: once the reader is past it and scrolling pauses (or turns back up), the
+pin is reverted and the scroll position compensated so nothing moves; it is
+re-armed out of sight once the paragraph is below the screen again. "Contact"
+releases it before jumping. The
 journey includes a visible "Scroll to develop" cue. Its active step stays
 legible while the previous and next step titles rotate in as smaller, dimmer
 orientation hints; adjacent descriptions stay hidden to protect the active
@@ -185,8 +191,7 @@ Replaced with the silver CD field.
 - No `og:image` social preview yet.
 - The journey is long (`620vh`); tune `.js .journey { height }` and the constants
   at the top of `src/motion.ts` if it drags.
-- The statement section is plain; the hero has empty space between intro and
-  word on tall screens.
+- The hero has empty space between intro and word on tall screens.
 - No projects/portfolio section (no content provided).
 - Real low-end mobile performance is untested (two canvases animate while
   visible).
