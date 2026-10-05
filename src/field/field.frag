@@ -72,14 +72,15 @@ vec3 surface(vec2 frag) {
   // The crest: one broad hump. Tilting sideways rolls it along; tilting up and down lifts it.
   float crest = 0.26 * sin(q.x * 1.5 + 0.4 - tilt.x * 0.9 + t * 0.06)
               + 0.06 * sin(q.x * 3.1 - 1.3 + tilt.x * 0.4 - t * 0.05)
-              - tilt.y * 0.14 - 0.04;
+              - tilt.y * 0.14 - 0.14;
   float d = q.y - crest; // above the crest is silver, below is the fold
   float depth = max(-d, 0.0);
 
   // Which colour the fold opens into: Klein blue on the left, tangerine on the right.
   // Tilting slides the colours across.
   float side = smoothstep(-0.95, 0.95, q.x + 0.25 * sin(q.y * 1.8 + t * 0.05) - tilt.x * 0.4 + depth * 0.25);
-  const float reach = 0.72;
+  // How far the fold opens into the other colours; kept modest so green and silver lead.
+  const float reach = 0.45;
 
   // Silver: brightest where the light catches just above the crest.
   vec3 silver = mix(SILVER, WHITE, 0.3 + 0.7 * exp(-max(d, 0.0) * 2.4));
@@ -110,7 +111,7 @@ vec3 surface(vec2 frag) {
   float across = (angle - aim) / 0.055;
   float streak = exp(-across * across) * smoothstep(2.0, 3.0, length(r));
   vec3 rainbow = spectrum(0.5 + across * 0.22 - tilt.y * 0.35 + roll);
-  float amount = min(streak * 0.58 * flare, 0.9);
+  float amount = min(streak * 0.35 * flare, 0.9);
   // It tints the silver, and adds light over the fold (a screen) so the colours never go grey.
   vec3 tinted = mix(col, rainbow, amount);
   vec3 lit = 1.0 - (1.0 - col) * (1.0 - rainbow * amount);
@@ -118,7 +119,7 @@ vec3 surface(vec2 frag) {
 
   // A thin fringe of the same spectrum riding the crest on the silver side.
   float fringe = smoothstep(0.0, 0.015, d) * exp(-d * 20.0) * exp(-along * along * 2.5);
-  col = mix(col, spectrum(d * 12.0 - tilt.x * 0.8 + tilt.y * 0.4 + roll + 0.1), min(fringe * 0.48 * flare, 0.9));
+  col = mix(col, spectrum(d * 12.0 - tilt.x * 0.8 + tilt.y * 0.4 + roll + 0.1), min(fringe * 0.3 * flare, 0.9));
 
   return col;
 }

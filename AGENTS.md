@@ -9,20 +9,46 @@ redeploys production. Commit or push only when the user asks.
 
 The third design (v3) is live. On 2026-10-05 the field was redone: the
 black-and-green field was rejected and replaced with a silver CD field (see the
-hard rules). The user picked the "balanced" colour mix out of three and asked
-for a stronger cursor response, which became tilt plus swing. Preserve the
+hard rules). The user asked for a stronger cursor response, which became tilt
+plus swing, and then settled on the most modest of three colour mixes. Preserve the
 direction and iterate in small, previewed steps; do not start over unless the
 user asks.
+
+The field, interaction, phone clip bug and high-density dither bug are done and
+live. What is left is polish: the user will bring new polish suggestions, and
+the known candidates are under "Open items" below.
+
+## Working with this user
+
+- Ask what they want changed before proposing a direction. Their requests are
+  short and visual; restate what you understood (what they said vs what you
+  assume) and confirm before building.
+- For colour or feel decisions, build 2–3 variants they can switch live (a
+  temporary key switch, e.g. 1/2/3, removed before committing) instead of
+  guessing one. They judge by trying it, and they change their minds once
+  motion is added, so re-check colour after any interaction change.
+- Show screenshots of every change, and tell them the dev URL to try it.
+- Commit and push only when asked, and ask again for each new change; one
+  approval does not cover the next.
+- They write in plain terms ("too much colour", "interact more"); translate to
+  concrete parameter changes and say which ones you changed.
 
 ## Commands
 
 ```sh
 npm install
-npm run dev       # Vite on http://localhost:5173 (earlier sessions used --port 5179)
+npm run dev       # Vite on http://localhost:5173
 npm run build     # tsc type-check, then vite build to dist/
 ```
 
-Restart the dev server after editing `vite.config.ts` (it defines `__COMMIT__`).
+Other worktrees often hold ports 5173 and 5179; start this one with
+`npx vite --port 5183 --strictPort` and pass `"url":"http://localhost:5183/"` to
+`scripts/shoot.mjs` (it defaults to 5179). Restart the dev server after editing
+`vite.config.ts` (it defines `__COMMIT__`).
+
+Shipping: work happens on a branch in a git worktree. To release, `git fetch`,
+check `git merge-base --is-ancestor origin/main HEAD`, then
+`git push origin HEAD:main`. Vercel redeploys; the footer shows the build hash.
 
 ## How the page works
 
@@ -43,6 +69,18 @@ pointer. `uSwing` (how fast the pointer moves) rolls the hues and makes the
 streaks flare, then settles. It renders smoothly or through an ordered Bayer
 dither, inside any 2D mask: 1-bit draws silver dots on black, up to 8 colours
 dither between the two nearest brand colours, and more quantise each channel.
+
+Where to tune the field:
+
+| What | Where | Now |
+| --- | --- | --- |
+| How much silver vs fold | `crest` offset in `field.frag` | `-0.14` |
+| How far the fold opens into the other colours | `reach` in `field.frag` | `0.45` |
+| Rainbow fan / crest fringe strength | `streak * 0.35`, `fringe * 0.3` | |
+| Flare and hue roll while moving | `flare` (`* 1.2`), `roll` (`* 0.6`) | |
+| How far each tilt effect travels | `tilt.*` multipliers in `surface()` | |
+| Tilt weight and swing decay | `0.09` and `0.15` in `main.ts` `draw` | |
+| Fold size | wordmark `width / 2.6`; journey `mix(side * 0.6, max(w, h) * 0.5, open)` in `main.ts` | |
 
 `src/fidelity.ts` defines the four stages shared by the hero intro and journey:
 1-bit 14px, 8 colours 8px, 27 colours 3px, and smooth native colour.
@@ -91,8 +129,9 @@ readout wraps (and is always stacked on phones) instead of widening it.
   arching over a rounded fold with one crisp crest). Colour it with green plus
   the CD's colours: Klein blue `#4100F5`, aquamarine `#9BF0E1`, green `#00FF88`,
   citric `#CDF564`, tangerine `#FF4632`, and thin rainbow diffraction streaks like
-  light on a CD. No black inside the gradient. Green leads; the "balanced" mix
-  (`reach = 0.72` in the shader) is the one the user chose.
+  light on a CD. No black inside the gradient. Green and silver lead; the user
+  chose the modest mix (`reach = 0.45`, faint fan and fringe in the shader). They
+  first picked a more colourful one, but with the swing flare it was too much.
 - Move along the spectral ramp instead of mixing across it: RGB-blending green
   into tangerine goes brown/olive, which reads as murky.
 - Cursor interaction is "tilt the disc": pointer position tilts the surface and
@@ -136,6 +175,13 @@ Replaced with the silver CD field.
 
 ## Open items worth raising with the user
 
+- Bug, desktop journey: the previous/next step hints do not work as intended.
+  `.js .steps` clips (`overflow: clip`, `src/style.css`), and `.is-prev` /
+  `.is-next` move by their full height, including the hidden description. So
+  the previous step is never visible, and the next one shows as a sliced title
+  fragment ("Comp…") just under the active paragraph (shoot `"journey":0.35` at
+  1440×900). Fix so the neighbours show as clean, dim titles. At 820px wide the
+  previous hint does show.
 - No `og:image` social preview yet.
 - The journey is long (`620vh`); tune `.js .journey { height }` and the constants
   at the top of `src/motion.ts` if it drags.
@@ -155,8 +201,10 @@ node scripts/shoot.mjs '{"shots":[{"name":"hero","y":0,"wait":3500,"mouse":[700,
 ```
 
 Images land in `.shots/`. Options include width/height, touch, reduced,
-noWebgl, and per-shot `y`, `sel+offset`, `frac`, `journey` (0–1), `mouse`, `key`,
-and `click`. Check desktop 1440×900, phone 390×844, reduced motion, and no-WebGL.
+noWebgl, `dpr`, and per-shot `y`, `sel+offset`, `frac`, `journey` (0–1), `mouse`,
+`key`, and `click`. Check desktop 1440×900, phone 390×844, reduced motion,
+no-WebGL, and a `"dpr":2` shot (the user's screen is high-density; a 1× check
+missed a bug that only showed there).
 To check the tilt, shoot the same spot with the mouse in opposite corners; a
 shot with `"wait": 90` right after a long mouse move catches the swing flare.
 
@@ -171,4 +219,9 @@ shot with `"wait": 90` right after a long mouse move catches the swing flare.
 - Do not center GSAP-animated elements with CSS `translate`; GSAP absorbs it
   into its transform. Use `inset: 0; margin: auto`.
 - `background-clip: text` only paints inside the box; pad for descenders.
-- The user has declined shell file deletions before; ask first.
+- A dither cell of 1 CSS px means smooth. Do not scale it by the pixel ratio
+  (`field.ts`), or high-density screens never leave the dither path.
+- Anything that changes the journey window's position needs the clip
+  re-measured (`journey.measure()` then `applyOpen()` in `motion.ts`).
+- The user has declined shell file deletions before; ask first. A leftover
+  diagnostic, `.shots/clipcheck.mjs`, is harmless (`.shots/` is gitignored).
