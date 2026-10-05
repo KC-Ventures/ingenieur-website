@@ -1,16 +1,13 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
   <defs>
-    <radialGradient id="body" cx="0.42" cy="0.34" r="0.66">
-      <stop offset="0" stop-color="#128052" />
-      <stop offset="0.58" stop-color="#05301f" />
-      <stop offset="1" stop-color="#010d08" />
-    </radialGradient>
-    <radialGradient id="glint" cx="0.5" cy="0.5" r="0.5">
-      <stop offset="0" stop-color="#ffffff" stop-opacity="0.95" />
-      <stop offset="1" stop-color="#ffffff" stop-opacity="0" />
-    </radialGradient>
+    <linearGradient id="cd" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0" stop-color="#4100f5" />
+      <stop offset="0.25" stop-color="#9bf0e1" />
+      <stop offset="0.5" stop-color="#00ff88" />
+      <stop offset="0.72" stop-color="#cdf564" />
+      <stop offset="1" stop-color="#ff4632" />
+    </linearGradient>
   </defs>
-  <rect width="64" height="64" rx="14" fill="#000000" />
-  <circle cx="32" cy="32" r="22" fill="url(#body)" />
-  <ellipse cx="32" cy="18.5" rx="10" ry="3" fill="url(#glint)" />
+  <rect width="64" height="64" rx="14" fill="#000" />
+  <rect x="14" y="14" width="36" height="36" fill="url(#cd)" />
 </svg>

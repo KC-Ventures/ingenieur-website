@@ -14,5 +14,7 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["src"]
+  "include": ["src"],
+  // Unused leftovers from the previous design, pending deletion.
+  "exclude": ["src/foil", "src/disc.ts"]
 }

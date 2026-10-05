@@ -1,11 +1,19 @@
 # Ingenieur Labs
 
-Landing page for Ingenieur Labs, a venture studio of two.
+Landing page for Ingenieur Labs, a venture studio.
 
-Plain HTML, CSS and TypeScript built with Vite. The background is a single WebGL
-fragment shader (`src/shaders/lacquer.frag`): a deep green lacquered surface
-reflecting a few long strip lights. It follows the pointer, flows as the page
-scrolls, and dims while you read (each section sets its own `data-exposure`).
+Plain HTML, CSS and TypeScript built with Vite, with GSAP for scroll animation.
+
+One WebGL shader (`src/field/field.frag`) draws a vivid conic gradient that
+turns around the pointer, like the colours on a CD around its centre. It can be
+drawn smooth or through an ordered dither, from one-bit dots up to full colour;
+`src/fidelity.ts` defines those steps. `src/field/field.ts` renders it inside any
+2D mask: the hero wordmark, and the window in the "idea to company" journey
+(`src/journey.ts`), which sharpens one step at a time as you scroll and then
+opens up to fill the screen behind the contact panel (`src/motion.ts`).
+
+The footer shows the commit a build came from, read from Vercel's
+`VERCEL_GIT_COMMIT_SHA` (`vite.config.ts`).
 
 ## Develop
 

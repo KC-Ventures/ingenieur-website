@@ -1,117 +1,120 @@
 import './style.css';
-import { createLacquer } from './lacquer';
-import { initThesis } from './thesis';
+import { fidelityAt } from './fidelity';
+import type { Field } from './field/field';
+import { createJourney } from './journey';
+import { initMotion, type Scene } from './motion';
+import { createWordmark } from './wordmark';
 
 const root = document.documentElement;
 const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-const canvas = document.querySelector<HTMLCanvasElement>('.lacquer')!;
-const thesisTitle = document.querySelector<HTMLElement>('.thesis__title')!;
-const sections = [...document.querySelectorAll<HTMLElement>('[data-exposure]')];
+document.querySelector('[data-commit]')!.textContent = __COMMIT__;
 
-// How bright the room should be: an average over the sections in the middle
-// half of the screen, so the lights follow what's being read.
-function targetExposure(): number {
-  const top = window.innerHeight * 0.25;
-  const bottom = window.innerHeight * 0.75;
-  let total = 0;
-  let weight = 0;
-  for (const section of sections) {
-    const rect = section.getBoundingClientRect();
-    const visible = Math.min(rect.bottom, bottom) - Math.max(rect.top, top);
-    if (visible <= 0) continue;
-    total += visible * Number(section.dataset.exposure ?? 1);
-    weight += visible;
-  }
-  return weight > 0 ? total / weight : 1;
+const scene: Scene = { hero: 3, journey: 0, open: 0 };
+
+// The gradient turns around the pointer. Until someone points, it drifts on its own.
+const pointer = { x: 0, y: 0, targetX: 0, targetY: 0, active: false };
+
+let frameQueued = false;
+// Draws the fields; replaced once the canvases exist.
+let draw = (_now: number) => {};
+
+function requestFrame() {
+  if (frameQueued) return;
+  frameQueued = true;
+  requestAnimationFrame((now) => {
+    frameQueued = false;
+    draw(now);
+  });
 }
 
-function fontsReady(timeout: number): Promise<unknown> {
-  return Promise.race([document.fonts.ready, new Promise((resolve) => setTimeout(resolve, timeout))]);
+/** The pointer in a canvas's own coordinates, or a slow drift around `home`. */
+function focusFor(canvas: HTMLElement, time: number, home: [number, number], reach: [number, number]): [number, number] {
+  const rect = canvas.getBoundingClientRect();
+  if (pointer.active) return [pointer.x - rect.left, pointer.y - rect.top];
+  return [home[0] + Math.sin(time * 0.35) * reach[0], home[1] + Math.cos(time * 0.27) * reach[1]];
 }
 
-function startLacquer() {
-  // Resizing clears the canvas, so the still frame used for reduced motion has to be redrawn.
-  let repaint = () => {};
-  const lacquer = createLacquer(canvas, () => repaint());
-  if (!lacquer) {
-    root.classList.add('no-webgl');
-    return;
+async function start() {
+  // The wordmark mask is drawn with the font, so it has to be loaded first.
+  await Promise.race([
+    Promise.all([document.fonts.load('700 100px Geist'), document.fonts.ready]),
+    new Promise((resolve) => setTimeout(resolve, 2500)),
+  ]);
+
+  const wordmarkCanvas = document.querySelector<HTMLCanvasElement>('.wordmark__field')!;
+  const wordmark = createWordmark(wordmarkCanvas, requestFrame);
+  const journey = createJourney(requestFrame);
+  if (!wordmark) root.classList.add('no-webgl');
+
+  const visible = new Map<Element, boolean>();
+  const observer = new IntersectionObserver((entries) => {
+    for (const entry of entries) visible.set(entry.target, entry.isIntersecting);
+    requestFrame();
+  });
+  observer.observe(wordmarkCanvas);
+  observer.observe(journey.fieldElement);
+
+  if (!reducedMotion) {
+    window.addEventListener(
+      'pointermove',
+      (event) => {
+        pointer.targetX = event.clientX;
+        pointer.targetY = event.clientY;
+        if (!pointer.active) {
+          pointer.x = event.clientX;
+          pointer.y = event.clientY;
+          pointer.active = true;
+        }
+        requestFrame();
+      },
+      { passive: true },
+    );
   }
-  // If the GPU drops the context, show the CSS gradient instead of a frozen frame.
-  canvas.addEventListener('webglcontextlost', () => root.classList.add('no-webgl'));
 
-  if (reducedMotion) {
-    // One still frame with the lights already on; redraw only when the room brightness changes.
-    let queued = false;
-    repaint = () => {
-      if (queued) return;
-      queued = true;
-      requestAnimationFrame(() => {
-        queued = false;
-        lacquer.render({ time: 0, scroll: 0, pointer: [0, 0], exposure: targetExposure(), reveal: 60 });
-      });
-    };
-    window.addEventListener('scroll', repaint, { passive: true });
-    repaint();
-    return;
-  }
+  const render = (
+    field: Field,
+    element: HTMLElement,
+    fidelity: number,
+    time: number,
+    home: [number, number],
+    reach: [number, number],
+    scale?: number,
+  ) => {
+    field.render({ ...fidelityAt(fidelity), focus: focusFor(element, time, home, reach), time, scale });
+  };
+  const mix = (a: number, b: number, t: number) => a + (b - a) * t;
 
-  const pointerTarget: [number, number] = [0, 0];
-  const pointer: [number, number] = [0, 0];
-  window.addEventListener(
-    'pointermove',
-    (event) => {
-      pointerTarget[0] = (event.clientX / window.innerWidth) * 2 - 1;
-      pointerTarget[1] = -((event.clientY / window.innerHeight) * 2 - 1);
-    },
-    { passive: true },
-  );
+  draw = (now) => {
+    // Still frames when motion is reduced: no drift, no pointer.
+    const time = reducedMotion ? 4 : now / 1000;
+    // Close the gap to the pointer quickly so the colour feels attached to it.
+    pointer.x += (pointer.targetX - pointer.x) * 0.25;
+    pointer.y += (pointer.targetY - pointer.y) * 0.25;
 
-  const litAt = performance.now();
-  let last = litAt;
-  let exposure = 1;
-  let slowFrames = 0;
-  let sampledFrames = 0;
-
-  function frame(now: number) {
-    const dt = Math.min((now - last) / 1000, 0.1);
-    last = now;
-
-    const ease = 1 - Math.exp(-dt * 3);
-    pointer[0] += (pointerTarget[0] - pointer[0]) * ease;
-    pointer[1] += (pointerTarget[1] - pointer[1]) * ease;
-    exposure += (targetExposure() - exposure) * (1 - Math.exp(-dt * 4));
-
-    const reveal = (now - litAt) / 1000;
-    lacquer!.render({
-      time: now / 1000,
-      scroll: window.scrollY / window.innerHeight,
-      pointer,
-      exposure,
-      reveal,
-    });
-
-    // After the intro, drop resolution on machines that can't keep up.
-    if (reveal > 3 && lacquer!.quality > 0.5) {
-      sampledFrames += 1;
-      if (dt > 1 / 40) slowFrames += 1;
-      if (sampledFrames === 90) {
-        if (slowFrames > 45) lacquer!.setQuality(Math.max(0.5, lacquer!.quality - 0.2));
-        sampledFrames = 0;
-        slowFrames = 0;
-      }
+    let animating = false;
+    if (wordmark && visible.get(wordmarkCanvas)) {
+      const { width, height } = wordmark.size;
+      render(wordmark, wordmarkCanvas, scene.hero, time, [width / 2, height / 2], [width * 0.35, height * 0.3]);
+      animating = true;
     }
+    if (journey.field && visible.get(journey.fieldElement)) {
+      // Left alone, the colour circles the window, then the whole screen once it opens.
+      const { width, height } = journey.field.size;
+      const [top, right, , left] = journey.insets;
+      const side = width - left - right;
+      const k = scene.open;
+      const home: [number, number] = [mix(left + side / 2, width / 2, k), mix(top + side / 2, height / 2, k)];
+      const reach: [number, number] = [mix(side * 0.25, width * 0.3, k), mix(side * 0.25, height * 0.3, k)];
+      // Opening the window into the page also opens up the colour bands.
+      render(journey.field, journey.fieldElement, scene.journey, time, home, reach, 360 + k * 540);
+      animating = true;
+    }
+    if (animating && !reducedMotion) requestFrame();
+  };
 
-    requestAnimationFrame(frame);
-  }
-
-  requestAnimationFrame(frame);
+  initMotion({ scene, journey, onChange: requestFrame });
+  requestFrame();
 }
 
-initThesis(thesisTitle, reducedMotion);
-
-fontsReady(1500).then(() => {
-  startLacquer();
-  root.classList.add('is-lit');
-});
+start();

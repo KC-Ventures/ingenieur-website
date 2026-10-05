@@ -6,138 +6,143 @@
     <title>Ingenieur Labs</title>
     <meta
       name="description"
-      content="Ingenieur Labs is a venture studio of two. We build software we want to exist, and turn the parts that work into companies."
+      content="Ingenieur Labs is a venture studio. We turn ambitious ideas into working software, and working software into companies."
     />
     <meta name="theme-color" content="#000000" />
     <meta property="og:type" content="website" />
     <meta property="og:title" content="Ingenieur Labs" />
     <meta
       property="og:description"
-      content="A venture studio of two. We build software we want to exist, and turn the parts that work into companies."
+      content="A venture studio. We turn ambitious ideas into working software, and working software into companies."
     />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&family=Geist+Mono:wght@400..600&display=swap"
     />
     <script>
-      // Hide the intro elements until the lights come on, but never for longer than 3s.
+      // Hold the intro until the script runs, but never hide content for more than 3s.
       document.documentElement.classList.add('js');
-      setTimeout(() => document.documentElement.classList.add('is-lit'), 3000);
+      setTimeout(() => document.documentElement.classList.add('is-ready'), 3000);
     </script>
   </head>
   <body>
-    <canvas class="lacquer" aria-hidden="true"></canvas>
     <a class="skip-link" href="#main">Skip to content</a>
 
     <header class="site-header">
-      <a class="brand" href="#top">Ingenieur Labs</a>
-      <nav aria-label="Primary">
-        <ul class="site-nav">
-          <li><a href="#approach">Approach</a></li>
-          <li><a href="#about">About</a></li>
-          <li><a href="#contact">Contact</a></li>
-        </ul>
-      </nav>
+      <div class="site-header__inner">
+        <a class="brand" href="#top">Ingenieur Labs</a>
+        <nav class="site-nav" aria-label="Primary">
+          <a href="#approach">Approach</a>
+          <a href="#contact">Contact</a>
+        </nav>
+        <a class="button button--green button--small" href="mailto:ingenieur.labs@gmail.com">Get in touch</a>
+      </div>
     </header>
 
-    <main id="main">
-      <section class="hero" id="top" data-exposure="1">
-        <p class="hero__lede">
-          A venture studio of two. We build software we want to exist, and turn the parts that work
-          into companies.
-        </p>
-        <h1 class="wordmark">
-          <span class="wordmark__name">Ingenieur</span>
-          <span class="wordmark__suffix">Labs</span>
+    <main id="main" class="frame">
+      <section class="hero" id="top" aria-labelledby="hero-title">
+        <div class="hero__intro">
+          <p class="hero__lede">
+            <span class="hero__lede-lead">Ingenieur Labs is a venture studio.</span>
+            We turn ambitious ideas into working software, and working software into companies.
+          </p>
+          <div class="hero__actions">
+            <a class="button button--green" href="mailto:ingenieur.labs@gmail.com">Get in touch</a>
+            <a class="button button--ghost" href="#approach">See how we work</a>
+          </div>
+        </div>
+        <h1 class="wordmark" id="hero-title">
+          <span class="visually-hidden">Ingenieur Labs</span>
+          <canvas class="wordmark__field" aria-hidden="true"></canvas>
+          <span class="wordmark__fallback" aria-hidden="true">ingenieur</span>
         </h1>
       </section>
 
-      <section class="thesis" data-exposure="0.3" aria-labelledby="thesis-title">
-        <h2 class="thesis__title" id="thesis-title">
-          <span class="thesis__line">Some ideas arrive</span>
-          <span class="thesis__line">with one dimension</span>
-          <span class="thesis__line">too many.</span>
-        </h2>
-        <div class="thesis__body">
-          <p>
-            They're too big to hold, too vague to start, or a little ahead of their time. We take
-            them apart, find the piece that works today, and build it until it's something people
-            can actually use.
-          </p>
-          <p>Every project here starts as a hunch and ends as working software.</p>
-        </div>
-      </section>
-
-      <section class="process" id="approach" data-exposure="0.12" aria-labelledby="process-title">
-        <h2 class="section-title" id="process-title">From a hunch to a company.</h2>
-        <ol class="stages">
-          <li class="stage">
-            <div class="specimen specimen--haze" aria-hidden="true"></div>
-            <h3 class="stage__name">Notice</h3>
-            <p class="stage__text">
-              It starts with a problem one of us keeps running into. If we wouldn't use the fix
-              ourselves, we don't build it.
-            </p>
-          </li>
-          <li class="stage">
-            <div class="specimen specimen--outline" aria-hidden="true"></div>
-            <h3 class="stage__name">Prototype</h3>
-            <p class="stage__text">
-              A working version in weeks, not a pitch deck. Rough is fine. Real is required.
-            </p>
-          </li>
-          <li class="stage">
-            <div class="specimen specimen--solid" aria-hidden="true"></div>
-            <h3 class="stage__name">Ship</h3>
-            <p class="stage__text">
-              We put it in front of people who have the same problem and watch what they actually do
-              with it.
-            </p>
-          </li>
-          <li class="stage">
-            <div class="specimen specimen--polished" aria-hidden="true"></div>
-            <h3 class="stage__name">Spin out</h3>
-            <p class="stage__text">
-              When it has users and momentum, it becomes a company of its own.
-            </p>
-          </li>
-        </ol>
-        <p class="process__note">
-          Most ideas stop after the first or second step. We keep what we learned and start the
-          next one sooner.
+      <section class="statement" aria-label="What we believe">
+        <p class="statement__text">
+          <span class="statement__phrase">Some ideas arrive with one dimension too many.</span>
+          <span class="statement__phrase">Too big to hold, too early to explain.</span>
+          <span class="statement__phrase">We give them a shape you can ship.</span>
         </p>
       </section>
 
-      <section class="about" id="about" data-exposure="0.2" aria-labelledby="about-title">
-        <h2 class="section-title" id="about-title">Small on purpose.</h2>
-        <div class="about__body">
-          <p>
-            Ingenieur Labs is two friends who would rather build than talk about building. We choose
-            the problems, write the code, ship it, and decide together which projects deserve to
-            become companies.
-          </p>
-          <p>
-            <i lang="de">Ingenieur</i> is German for engineer. The word traces back to the Latin
-            <i lang="la">ingenium</i>, which also gave us ingenious. That's the bar.
-          </p>
-        </div>
-      </section>
+      <section class="journey" id="approach" aria-labelledby="journey-title">
+        <div class="journey__stage">
+          <div class="journey__field" aria-hidden="true">
+            <canvas class="journey__canvas"></canvas>
+          </div>
 
-      <section class="contact" id="contact" data-exposure="0.85" aria-labelledby="contact-title">
-        <h2 class="contact__title" id="contact-title">Have an idea that feels out of reach?</h2>
-        <p class="contact__text">Tell us about it, or just say hello.</p>
-        <div class="contact__actions">
-          <a class="button button--solid" href="mailto:ingenieur.labs@gmail.com">Email us</a>
-          <a class="button button--ghost" href="https://github.com/KC-Ventures">GitHub</a>
+          <div class="journey__copy">
+            <h2 class="journey__title" id="journey-title">From idea to company.</h2>
+            <ol class="steps">
+              <li class="step">
+                <span class="step__index">01</span>
+                <h3 class="step__name"><span>Idea</span></h3>
+                <p class="step__text">
+                  We start with a problem worth solving and a reason it can be solved now.
+                </p>
+              </li>
+              <li class="step">
+                <span class="step__index">02</span>
+                <h3 class="step__name"><span>Prototype</span></h3>
+                <p class="step__text">
+                  A working version in weeks, not a pitch deck. Rough is fine. Real is required.
+                </p>
+              </li>
+              <li class="step">
+                <span class="step__index">03</span>
+                <h3 class="step__name"><span>Product</span></h3>
+                <p class="step__text">
+                  Real users, real feedback. We iterate until people would miss it if it were gone.
+                </p>
+              </li>
+              <li class="step">
+                <span class="step__index">04</span>
+                <h3 class="step__name"><span>Company</span></h3>
+                <p class="step__text">When it has traction, it spins out as a company of its own.</p>
+              </li>
+            </ol>
+            <div class="journey__progress" aria-hidden="true">
+              <span></span><span></span><span></span><span></span>
+            </div>
+          </div>
+
+          <div class="journey__viewer" aria-hidden="true">
+            <div class="journey__window"></div>
+            <dl class="journey__spec">
+              <div>
+                <dt>Resolution</dt>
+                <dd data-resolution>14 px</dd>
+              </div>
+              <div>
+                <dt>Colour</dt>
+                <dd data-colour>1-bit</dd>
+              </div>
+            </dl>
+          </div>
+
+          <div class="journey__cta" id="contact">
+            <h2 class="journey__cta-title">Have an idea that feels out of reach?</h2>
+            <p class="journey__cta-text">Tell us about it.</p>
+            <div class="journey__cta-actions">
+              <a class="button button--green" href="mailto:ingenieur.labs@gmail.com">ingenieur.labs@gmail.com</a>
+              <a class="button button--ghost" href="https://github.com/KC-Ventures">GitHub</a>
+            </div>
+          </div>
         </div>
       </section>
     </main>
 
-    <footer class="site-footer">
+    <footer class="site-footer frame">
       <p>© 2026 Ingenieur Labs</p>
+      <nav class="site-footer__links" aria-label="Contact">
+        <a href="mailto:ingenieur.labs@gmail.com">ingenieur.labs@gmail.com</a>
+        <a href="https://github.com/KC-Ventures">GitHub</a>
+      </nav>
+      <p class="site-footer__build">Build <span data-commit>local</span></p>
     </footer>
 
     <script type="module" src="/src/main.ts"></script>
