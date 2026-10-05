@@ -5,6 +5,11 @@ working software, and working software into companies"). Deployed on Vercel from
 `main` of `github.com/KC-Ventures/ingenieur-website`: every push to `main`
 redeploys production. Commit or push only when the user asks.
 
+`DESIGN.md` is the design reference: the idea, the reference sites (Vercel,
+distrategy.plastic.design, plastic.design) and the CD the gradient comes from,
+tokens, components, the field, motion, voice, and how to extend the design.
+Read it before any visual change, and update it when a design value changes.
+
 ## Status (2026-10-05)
 
 The third design (v3) is live. On 2026-10-05 the field was redone: the
