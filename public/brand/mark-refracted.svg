@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 386.48 452.22" width="386.48" height="452.22">
+  <title>Ingenieur Labs</title>
+  <defs>
+    <!-- A still frame of the hero field: silver above one crisp crest leaning up to the
+         right, green in the fold below it opening towards citric with depth. -->
+    <linearGradient id="field" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="357.6" y2="474.6">
+      <stop offset="0" stop-color="#bdb7e6" />
+      <stop offset="0.2" stop-color="#d6d6ea" />
+      <stop offset="0.34" stop-color="#e8eaf0" />
+      <stop offset="0.48" stop-color="#fbfcfd" />
+      <stop offset="0.48" stop-color="#009e6a" />
+      <stop offset="0.56" stop-color="#00cc7e" />
+      <stop offset="0.68" stop-color="#00ff88" />
+      <stop offset="0.88" stop-color="#5dfb7e" />
+      <stop offset="1" stop-color="#a9f86d" />
+    </linearGradient>
+    <!-- The sheen where the light catches just above the crest. -->
+    <radialGradient id="sheen" gradientUnits="userSpaceOnUse" cx="190" cy="170" r="150">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.6" />
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0" />
+    </radialGradient>
+    <!-- The thin rainbow fringe riding the crest on the silver side, like light on a CD. -->
+    <linearGradient id="fringe" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="357.6" y2="474.6">
+      <stop offset="0.36" stop-color="#ff9ee0" stop-opacity="0" />
+      <stop offset="0.39" stop-color="#ff9ee0" stop-opacity="0.55" />
+      <stop offset="0.415" stop-color="#a98cff" stop-opacity="0.55" />
+      <stop offset="0.44" stop-color="#8fdcff" stop-opacity="0.55" />
+      <stop offset="0.46" stop-color="#d9ff9a" stop-opacity="0.55" />
+      <stop offset="0.475" stop-color="#ffffff" stop-opacity="0" />
+    </linearGradient>
+    <clipPath id="silver">
+      <!-- Everything on the silver side of the crest (offset 0.48 of the gradients). -->
+      <path d="M-100 -100H606.7L-100 432.5Z" />
+    </clipPath>
+    <path id="mark" fill-rule="evenodd" d="M187.89 1.43A10.7 10.7 0 0 1 198.59 1.43L279.13 47.93A10.7 10.7 0 0 1 284.48 57.2L284.48 150.2A10.7 10.7 0 0 1 279.13 159.47L198.59 205.97A10.7 10.7 0 0 1 187.89 205.97L107.35 159.47A10.7 10.7 0 0 1 102 150.2L102 57.2A10.7 10.7 0 0 1 107.35 47.93ZM193.24 23.06L263.08 63.38L263.08 144.02L193.24 184.34L123.4 144.02L123.4 63.38ZM85.89 178.1A10.7 10.7 0 0 1 96.59 178.1L177.13 224.6A10.7 10.7 0 0 1 182.48 233.87L182.48 326.87A10.7 10.7 0 0 1 177.13 336.14L96.59 382.64A10.7 10.7 0 0 1 85.89 382.64L5.35 336.14A10.7 10.7 0 0 1 0 326.87L0 233.87A10.7 10.7 0 0 1 5.35 224.6ZM91.24 199.72L161.08 240.05L161.08 320.69L91.24 361.01L21.4 320.69L21.4 240.05ZM289.89 178.1A10.7 10.7 0 0 1 300.59 178.1L381.13 224.6A10.7 10.7 0 0 1 386.48 233.87L386.48 326.87A10.7 10.7 0 0 1 381.13 336.14L300.59 382.64A10.7 10.7 0 0 1 289.89 382.64L209.35 336.14A10.7 10.7 0 0 1 204 326.87L204 233.87A10.7 10.7 0 0 1 209.35 224.6ZM295.24 199.72L365.08 240.05L365.08 320.69L295.24 361.01L225.4 320.69L225.4 240.05ZM91.24 447.12L91.24 434.18A5.1 5.1 0 0 1 93.79 429.76L187.89 375.43A10.7 10.7 0 0 1 198.59 375.43L292.69 429.76A5.1 5.1 0 0 1 295.24 434.18L295.24 447.12A5.1 5.1 0 0 1 287.6 451.53L193.24 397.06L98.88 451.53A5.1 5.1 0 0 1 91.24 447.12Z" />
+  </defs>
+  <use href="#mark" fill="url(#field)" />
+  <g clip-path="url(#silver)">
+    <use href="#mark" fill="url(#sheen)" />
+    <use href="#mark" fill="url(#fringe)" />
+  </g>
+</svg>

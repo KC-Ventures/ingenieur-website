@@ -20,6 +20,9 @@ of the screen while a light sweeps it, ending on a green "ship" (`13bd803`), and
 the journey steps turn like a click wheel on a drum (`74dce7f`). Smaller polish
 candidates are under "Open items" below.
 
+The logo mark is in: the white mark sits beside "Ingenieur Labs" in the header,
+and the favicon is the green mark on a black tile (see "Brand files" below).
+
 ### Next task: a founders section
 
 The user wants a section introducing the founders. Nothing has been designed or
@@ -150,6 +153,23 @@ readout wraps (and is always stacked on phones) instead of widening it.
 
 `vite.config.ts` defines `__COMMIT__` from `VERCEL_GIT_COMMIT_SHA`.
 
+### Brand files
+
+The mark is three pointy-top hexagons stacked like a club suit, with a chevron
+stem, traced from the user's `assets/logo_reference.png` (hex radius 93, stroke
+21.4, centres 204 apart on a honeycomb lattice; the chevron's ends are cut
+vertically under the lower hexagons' centres). `public/brand/` holds
+`mark-white.svg`, `mark-green.svg` (`#00ff88`) and `mark-refracted.svg`, a still
+frame of the hero field (silver, a rainbow fringe on one crisp crest, green
+fold). The header inlines the white path with `fill="currentColor"`
+(`.brand__mark`, 26px tall). `public/favicon.svg` is the green mark on a black
+rounded tile with a heavier stroke (36) so it reads at 16px. The user picked the
+tile so it shows on light tab bars too. After changing any of these SVGs, run
+`node scripts/export-brand.mjs` to regenerate the PNGs in `public/brand/png/`
+and `public/apple-touch-icon.png`. Every PNG is square with the mark centred at
+70% of the side, so they work as avatars (the user asked for this for the
+GitHub org picture); `avatar-*-1024.png` are the same on black.
+
 `src/foil/` and `src/disc.ts` are unused leftovers from v2 and are excluded in
 `tsconfig.json`. Delete them, and remove the exclude, only with the user's OK.
 
@@ -174,7 +194,7 @@ readout wraps (and is always stacked on phones) instead of widening it.
   wordmark.
 - Do not depict a literal CD/disc, a car, or a tesseract. The logo concept is a
   tesseract ("make things beyond us concrete"), but it must not appear on the
-  site.
+  site. The drawn mark (the hexagon club in `public/brand/`) is fine to show.
 - Keep the feeling sleek, intentional, and minimal-maximal: Ferrari energy
   without showing a car. Vercel is the inspiration, pushed further. Strong
   typography uses Geist / Geist Mono.

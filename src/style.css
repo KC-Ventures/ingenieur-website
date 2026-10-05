@@ -225,10 +225,20 @@ a {
 }
 
 .brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.625rem;
   font-weight: 600;
   font-size: var(--t-sm);
   letter-spacing: -0.02em;
   text-decoration: none;
+}
+
+.brand__mark {
+  flex: none;
+  width: auto;
+  height: 26px;
+  color: var(--white);
 }
 
 .site-nav {
