@@ -7,20 +7,11 @@
   --line: #1f1f1f;
   --line-strong: #333333;
   --green: #00ff88;
+  --green-soft: #64b977;
   --green-hover: #7dffc1;
 
-  /* The CD palette: Klein blue, aquamarine, green, citric, tangerine, black. */
-  --cd: conic-gradient(
-    from 200deg at 35% 55%,
-    #4100f5,
-    #9bf0e1 15%,
-    #00ff88 31%,
-    #cdf564 47%,
-    #ff4632 62%,
-    #000000 74%,
-    #000000 86%,
-    #4100f5
-  );
+  /* A quiet linear fallback for browsers without the field shader. */
+  --cd: linear-gradient(116deg, #07120c 0%, #173b25 38%, #35583b 67%, #0b1e12 100%);
 
   --font: 'Geist', ui-sans-serif, system-ui, sans-serif;
   --mono: 'Geist Mono', ui-monospace, 'SF Mono', monospace;
@@ -312,11 +303,7 @@ a {
   font-weight: 700;
   letter-spacing: -0.05em;
   line-height: 0.9;
-  /* The palette without its black band, so every letter stays legible. */
-  background: linear-gradient(100deg, #4100f5, #9bf0e1 25%, #00ff88 50%, #cdf564 72%, #ff4632);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+  color: #6c9f72;
 }
 
 /* ---------- Statement ---------- */
@@ -362,11 +349,51 @@ a {
 
 .journey__title {
   grid-area: title;
+  display: grid;
+  gap: 1.35rem;
   align-self: start;
   font-size: var(--t-lg);
   font-weight: 500;
   letter-spacing: -0.02em;
   color: var(--muted);
+}
+
+.journey__scroll-cue {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  width: fit-content;
+  color: var(--green-soft);
+  font-family: var(--mono);
+  font-size: var(--t-xs);
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.journey__scroll-line {
+  width: 2.25rem;
+  height: 1px;
+  background: currentColor;
+  opacity: 0.7;
+}
+
+.journey__scroll-arrow {
+  display: inline-block;
+  animation: scroll-cue 1.8s ease-in-out infinite;
+}
+
+@keyframes scroll-cue {
+  0%,
+  100% {
+    opacity: 0.55;
+    transform: translateY(-2px);
+  }
+
+  50% {
+    opacity: 1;
+    transform: translateY(3px);
+  }
 }
 
 .steps {
@@ -534,17 +561,61 @@ a {
 }
 
 .js .steps {
+  position: absolute;
+  top: 50%;
+  left: var(--pad);
+  width: min(40rem, calc(50vw - 4rem));
+  height: min(66%, 32rem);
+  max-height: calc(100% - 4rem);
   gap: 0;
-  align-self: center;
+  align-content: center;
+  overflow: clip;
+  transform: translateY(-50%);
 }
 
-/* One step at a time; the script decides which. */
+/* Keep the current step legible while adjacent steps peek into the reading area.
+   The stack makes the scroll-driven state change visible before it happens. */
 .js .step {
   grid-area: 1 / 1;
+  align-self: center;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(5rem) scale(0.96);
+  transition:
+    opacity 500ms ease,
+    transform 700ms var(--ease-out);
 }
 
-.js .step:not(.is-current) {
-  opacity: 0;
+.js .step.is-current {
+  z-index: 2;
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.js .step.is-prev,
+.js .step.is-next {
+  z-index: 1;
+  opacity: 0.28;
+}
+
+.js .step.is-prev {
+  transform: translateY(calc(-100% - 2rem)) scale(0.92);
+}
+
+.js .step.is-next {
+  transform: translateY(calc(100% + 2rem)) scale(0.92);
+}
+
+.js .step.is-prev .step__name,
+.js .step.is-next .step__name {
+  font-size: clamp(2.25rem, 4.5vw, 4.5rem);
+  color: var(--muted);
+}
+
+/* Adjacent states are orientation, not competing paragraphs. */
+.js .step.is-prev .step__text,
+.js .step.is-next .step__text {
+  opacity: 0 !important;
 }
 
 /* The copy steps aside as the window opens into the page. */
@@ -553,6 +624,10 @@ a {
   position: relative;
   z-index: 1;
   opacity: var(--copy, 1);
+}
+
+.js .journey__copy > .steps {
+  position: absolute;
 }
 
 /* Centred with auto margins rather than a transform, which GSAP animates. */
@@ -634,7 +709,7 @@ a {
   }
 
   .journey {
-    --window: min(78vw, 40vh);
+    --window: min(68vw, 28vh);
   }
 
   .journey__stage {
@@ -653,11 +728,39 @@ a {
     justify-self: center;
   }
 
+  .js .steps {
+    position: relative;
+    inset: auto;
+    width: auto;
+    height: 100%;
+    max-height: none;
+    transform: none;
+  }
+
+  .js .journey__copy > .steps {
+    position: relative;
+    transform: translateY(-2.5rem);
+  }
+
   .step__name {
-    font-size: clamp(2.75rem, 13vw, 4rem);
+    font-size: clamp(2.25rem, 11vw, 3.25rem);
   }
 
   .step__text {
     font-size: var(--t-base);
+  }
+
+  .journey__scroll-cue {
+    font-size: 0.6875rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .journey__scroll-arrow {
+    animation: none;
+  }
+
+  .js .step {
+    transition: none;
   }
 }

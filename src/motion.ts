@@ -90,6 +90,11 @@ export function initMotion({ scene, journey, onChange }: MotionOptions) {
     if (index === current) return;
     current = index;
     const step = journey.showStep(index);
+    journey.steps.forEach((item, i) => {
+      item.classList.toggle('is-prev', i === index - 1);
+      item.classList.toggle('is-next', i === index + 1);
+      item.style.opacity = i === index ? '1' : i === index - 1 || i === index + 1 ? '0.28' : '0';
+    });
     if (reduced) {
       scene.journey = index;
       onChange();

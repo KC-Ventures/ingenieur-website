@@ -12,7 +12,7 @@ document.querySelector('[data-commit]')!.textContent = __COMMIT__;
 
 const scene: Scene = { hero: 3, journey: 0, open: 0 };
 
-// The gradient turns around the pointer. Until someone points, it drifts on its own.
+// The field tilts and drifts with the pointer. Until someone points, it moves gently on its own.
 const pointer = { x: 0, y: 0, targetX: 0, targetY: 0, active: false };
 
 let frameQueued = false;
