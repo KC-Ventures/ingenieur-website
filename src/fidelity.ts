@@ -4,9 +4,9 @@
 export interface Stage {
   /** Dither cell size in CSS pixels; 1 is smooth. */
   cell: number;
-  /** Palette steps while dithering. */
+  /** Colours while dithering: up to 8 picks from the brand palette, more quantises each channel. */
   steps: number;
-  /** 1 draws one-bit green dots. */
+  /** 1 draws one-bit silver dots. */
   mono: number;
   /** What the readout says about this stage. */
   resolution: string;
@@ -15,8 +15,8 @@ export interface Stage {
 
 export const STAGES: Stage[] = [
   { cell: 14, steps: 2, mono: 1, resolution: '14 px', colour: '1-bit' },
-  { cell: 8, steps: 6, mono: 0, resolution: '8 px', colour: '6 colours' },
-  { cell: 3, steps: 24, mono: 0, resolution: '3 px', colour: '24 colours' },
+  { cell: 8, steps: 8, mono: 0, resolution: '8 px', colour: '8 colours' },
+  { cell: 3, steps: 27, mono: 0, resolution: '3 px', colour: '27 colours' },
   { cell: 1, steps: 256, mono: 0, resolution: 'Native', colour: 'Full colour' },
 ];
 

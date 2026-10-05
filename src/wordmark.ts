@@ -45,10 +45,6 @@ export function createWordmark(canvas: HTMLCanvasElement, onResize: () => void):
       ctx.fillStyle = '#fff';
       [...WORD].forEach((letter, i) => ctx.fillText(letter, l.inset + l.xs[i], PAD * size + l.ascent));
     },
-    // Keep the dark band inside the same restrained green system as the field.
-    black: 0,
-    dark: [0.02, 0.09, 0.05],
-    scale: 420,
     onResize,
   });
 }

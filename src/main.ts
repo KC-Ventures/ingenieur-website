@@ -12,8 +12,11 @@ document.querySelector('[data-commit]')!.textContent = __COMMIT__;
 
 const scene: Scene = { hero: 3, journey: 0, open: 0 };
 
-// The field tilts and drifts with the pointer. Until someone points, it moves gently on its own.
-const pointer = { x: 0, y: 0, targetX: 0, targetY: 0, active: false };
+// The pointer holds the disc: where it sits on screen is the angle of the tilt, and
+// how fast it moves is the swing that makes the colours flicker.
+// Until a mouse moves (and always on touch), the disc turns slowly on its own and scrolling tips it.
+const tilt = { x: 0.3, y: -0.1, targetX: 0.3, targetY: -0.1, swingX: 0, swingY: 0, pointing: false };
+const clamp = (value: number) => Math.max(-1, Math.min(1, value));
 
 let frameQueued = false;
 // Draws the fields; replaced once the canvases exist.
@@ -26,13 +29,6 @@ function requestFrame() {
     frameQueued = false;
     draw(now);
   });
-}
-
-/** The pointer in a canvas's own coordinates, or a slow drift around `home`. */
-function focusFor(canvas: HTMLElement, time: number, home: [number, number], reach: [number, number]): [number, number] {
-  const rect = canvas.getBoundingClientRect();
-  if (pointer.active) return [pointer.x - rect.left, pointer.y - rect.top];
-  return [home[0] + Math.sin(time * 0.35) * reach[0], home[1] + Math.cos(time * 0.27) * reach[1]];
 }
 
 async function start() {
@@ -59,55 +55,62 @@ async function start() {
     window.addEventListener(
       'pointermove',
       (event) => {
-        pointer.targetX = event.clientX;
-        pointer.targetY = event.clientY;
-        if (!pointer.active) {
-          pointer.x = event.clientX;
-          pointer.y = event.clientY;
-          pointer.active = true;
-        }
+        // A finger drags the page; only a mouse or pen holds the disc.
+        if (event.pointerType === 'touch') return;
+        tilt.targetX = clamp((event.clientX / window.innerWidth) * 2 - 1);
+        tilt.targetY = clamp((event.clientY / window.innerHeight) * 2 - 1);
+        tilt.pointing = true;
         requestFrame();
       },
       { passive: true },
     );
   }
 
-  const render = (
-    field: Field,
-    element: HTMLElement,
-    fidelity: number,
-    time: number,
-    home: [number, number],
-    reach: [number, number],
-    scale?: number,
-  ) => {
-    field.render({ ...fidelityAt(fidelity), focus: focusFor(element, time, home, reach), time, scale });
+  const render = (field: Field, fidelity: number, time: number, origin: [number, number], scale?: number) => {
+    field.render({
+      ...fidelityAt(fidelity),
+      origin,
+      tilt: [tilt.x, tilt.y],
+      swing: [tilt.swingX, tilt.swingY],
+      time,
+      scale,
+    });
   };
   const mix = (a: number, b: number, t: number) => a + (b - a) * t;
 
   draw = (now) => {
     // Still frames when motion is reduced: no drift, no pointer.
     const time = reducedMotion ? 4 : now / 1000;
-    // Close the gap to the pointer quickly so the colour feels attached to it.
-    pointer.x += (pointer.targetX - pointer.x) * 0.25;
-    pointer.y += (pointer.targetY - pointer.y) * 0.25;
+    if (!tilt.pointing && !reducedMotion) {
+      const scroll = window.scrollY / window.innerHeight;
+      tilt.targetX = clamp(Math.sin(time * 0.21) * 0.5 + Math.sin(scroll * 0.9) * 0.45);
+      tilt.targetY = clamp(Math.cos(time * 0.16) * 0.35 + Math.cos(scroll * 0.7) * 0.25);
+    }
+    // Eased, so the disc has some weight in the hand. How far it trails the pointer is
+    // how fast it is being turned; that swing settles a little more slowly than the tilt.
+    const lagX = tilt.targetX - tilt.x;
+    const lagY = tilt.targetY - tilt.y;
+    tilt.x += lagX * 0.09;
+    tilt.y += lagY * 0.09;
+    tilt.swingX += (clamp(lagX * 2) - tilt.swingX) * 0.15;
+    tilt.swingY += (clamp(lagY * 2) - tilt.swingY) * 0.15;
 
     let animating = false;
     if (wordmark && visible.get(wordmarkCanvas)) {
+      // One fold across the whole word, at any width.
       const { width, height } = wordmark.size;
-      render(wordmark, wordmarkCanvas, scene.hero, time, [width / 2, height / 2], [width * 0.35, height * 0.3]);
+      render(wordmark, scene.hero, time, [width / 2, height / 2], width / 2.6);
       animating = true;
     }
     if (journey.field && visible.get(journey.fieldElement)) {
-      // Left alone, the colour circles the window, then the whole screen once it opens.
+      // The fold is centred in the window, then in the whole screen once it opens.
       const { width, height } = journey.field.size;
       const [top, right, , left] = journey.insets;
       const side = width - left - right;
       const k = scene.open;
-      const home: [number, number] = [mix(left + side / 2, width / 2, k), mix(top + side / 2, height / 2, k)];
-      const reach: [number, number] = [mix(side * 0.25, width * 0.3, k), mix(side * 0.25, height * 0.3, k)];
-      // Opening the window into the page also opens up the colour bands.
-      render(journey.field, journey.fieldElement, scene.journey, time, home, reach, 360 + k * 540);
+      const origin: [number, number] = [mix(left + side / 2, width / 2, k), mix(top + side / 2, height / 2, k)];
+      // Opening the window into the page also opens up the fold.
+      render(journey.field, scene.journey, time, origin, mix(side * 0.6, Math.max(width, height) * 0.5, k));
       animating = true;
     }
     if (animating && !reducedMotion) requestFrame();

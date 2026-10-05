@@ -31,8 +31,7 @@ export function createJourney(onResize: () => void): Journey {
   const cta = stage.querySelector<HTMLElement>('.journey__cta')!;
 
   const field = createField(stage.querySelector<HTMLCanvasElement>('.journey__canvas')!, {
-    scale: 360,
-    black: 0.12,
+    scale: 420,
     // It can cover the whole screen; soft colour and large dither cells don't need more.
     maxRatio: 1,
     onResize,

@@ -10,8 +10,17 @@
   --green-soft: #64b977;
   --green-hover: #7dffc1;
 
-  /* A quiet linear fallback for browsers without the field shader. */
-  --cd: linear-gradient(116deg, #07120c 0%, #173b25 38%, #35583b 67%, #0b1e12 100%);
+  /* A still version of the field for browsers without the shader: the disc's colours, a green fold, silver. */
+  --cd: linear-gradient(
+    152deg,
+    #e9ecef 0%,
+    #c4c9ce 30%,
+    #f6f8fa 46%,
+    #00a066 47.5%,
+    #00ff88 58%,
+    #9bf0e1 72%,
+    #4100f5 100%
+  );
 
   --font: 'Geist', ui-sans-serif, system-ui, sans-serif;
   --mono: 'Geist Mono', ui-monospace, 'SF Mono', monospace;
@@ -303,7 +312,10 @@ a {
   font-weight: 700;
   letter-spacing: -0.05em;
   line-height: 0.9;
-  color: #6c9f72;
+  color: transparent;
+  background: var(--cd);
+  -webkit-background-clip: text;
+  background-clip: text;
 }
 
 /* ---------- Statement ---------- */
@@ -457,10 +469,12 @@ a {
   background: var(--green);
 }
 
+/* As wide as the window, so a longer readout wraps instead of moving the window. */
 .journey__viewer {
   grid-area: viewer;
   display: grid;
   gap: 1rem;
+  width: var(--window);
 }
 
 /* A frame the field shows through; the field itself is clipped to this rectangle. */
@@ -473,8 +487,9 @@ a {
 
 .journey__spec {
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
-  gap: 1rem;
+  gap: 0.25rem 1rem;
   font-family: var(--mono);
   font-size: var(--t-xs);
 }
@@ -726,6 +741,11 @@ a {
 
   .journey__viewer {
     justify-self: center;
+  }
+
+  /* Always two lines here, so the readout never changes height between steps. */
+  .journey__spec {
+    flex-direction: column;
   }
 
   .js .steps {

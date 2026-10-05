@@ -2,14 +2,18 @@ import vertexSource from './fullscreen.vert?raw';
 import fragmentSource from './field.frag?raw';
 
 export interface FieldFrame {
-  /** Centre of the gradient, CSS pixels from the canvas's top-left. */
-  focus: [number, number];
+  /** Centre of the fold, CSS pixels from the canvas's top-left. */
+  origin: [number, number];
+  /** How the disc is held, -1 to 1 on each axis. */
+  tilt: [number, number];
+  /** How fast it is being turned, about -1 to 1 on each axis; 0 at rest. */
+  swing: [number, number];
   time: number;
-  /** Dither cell size in CSS pixels; 1 draws the gradient smooth. */
+  /** Dither cell size in CSS pixels; 1 draws the field smooth. */
   cell: number;
-  /** Palette steps while dithering. */
+  /** Colours while dithering. */
   steps: number;
-  /** 1 draws one-bit green dots instead of colour. */
+  /** 1 draws one-bit silver dots instead of colour. */
   mono: number;
   /** CSS pixels per unit of the field; overrides the option for this frame. */
   scale?: number;
@@ -26,12 +30,8 @@ export interface Field {
 interface FieldOptions {
   /** Paints where the field shows; leave it out to fill the canvas. */
   drawMask?: (ctx: CanvasRenderingContext2D, width: number, height: number) => void;
-  /** CSS pixels per unit of the field: how large the colour bands are. */
+  /** CSS pixels per unit of the field: how large the fold is. */
   scale?: number;
-  /** Width of the dark band in the palette. */
-  black?: number;
-  /** Colour of the dark band, 0 to 1 per channel; pure black by default. */
-  dark?: [number, number, number];
   /** Highest device pixel ratio to render at. */
   maxRatio?: number;
   /** Fires after a resize; the canvas is blank until the next render. */
@@ -41,14 +41,14 @@ interface FieldOptions {
 const UNIFORMS = [
   'uResolution',
   'uMask',
-  'uFocus',
+  'uOrigin',
+  'uTilt',
+  'uSwing',
   'uScale',
   'uTime',
   'uCell',
   'uSteps',
-  'uDark',
   'uMono',
-  'uBlack',
 ] as const;
 
 function compile(gl: WebGLRenderingContext, type: number, source: string): WebGLShader {
@@ -62,7 +62,7 @@ function compile(gl: WebGLRenderingContext, type: number, source: string): WebGL
 }
 
 /**
- * Draws the vivid CD-style gradient into a canvas, inside an optional mask.
+ * Draws the silver CD field into a canvas, inside an optional mask.
  * Returns null without WebGL so the caller can keep its CSS fallback.
  */
 export function createField(canvas: HTMLCanvasElement, options: FieldOptions = {}): Field | null {
@@ -96,8 +96,6 @@ export function createField(canvas: HTMLCanvasElement, options: FieldOptions = {
     WebGLUniformLocation | null
   >;
   gl.uniform1i(u.uMask, 0);
-  gl.uniform1f(u.uBlack, options.black ?? 0.12);
-  gl.uniform3f(u.uDark, ...(options.dark ?? [0, 0, 0]));
 
   const texture = gl.createTexture();
   gl.bindTexture(gl.TEXTURE_2D, texture);
@@ -146,11 +144,13 @@ export function createField(canvas: HTMLCanvasElement, options: FieldOptions = {
   return {
     size,
     refreshMask,
-    render({ focus, time, cell, steps, mono, scale }) {
+    render({ origin, tilt, swing, time, cell, steps, mono, scale }) {
       if (!size.width || !size.height) return;
       gl.uniform2f(u.uResolution, canvas.width, canvas.height);
       // CSS pixels from the top-left become device pixels from the bottom-left.
-      gl.uniform2f(u.uFocus, focus[0] * ratio, (size.height - focus[1]) * ratio);
+      gl.uniform2f(u.uOrigin, origin[0] * ratio, (size.height - origin[1]) * ratio);
+      gl.uniform2f(u.uTilt, tilt[0], tilt[1]);
+      gl.uniform2f(u.uSwing, swing[0], swing[1]);
       gl.uniform1f(u.uScale, (scale ?? options.scale ?? 520) * ratio);
       gl.uniform1f(u.uTime, time);
       gl.uniform1f(u.uCell, Math.max(1, cell * ratio));

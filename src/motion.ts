@@ -90,6 +90,9 @@ export function initMotion({ scene, journey, onChange }: MotionOptions) {
     if (index === current) return;
     current = index;
     const step = journey.showStep(index);
+    // The readout's new text can move the window; keep the clip on it.
+    journey.measure();
+    applyOpen();
     journey.steps.forEach((item, i) => {
       item.classList.toggle('is-prev', i === index - 1);
       item.classList.toggle('is-next', i === index + 1);
